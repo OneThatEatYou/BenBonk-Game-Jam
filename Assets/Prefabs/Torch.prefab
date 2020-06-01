@@ -227,7 +227,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 658d0b6b54d1dc94fb2c8cf4d6fb5c9d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  clip: {fileID: 0}
+  clip: {fileID: 8300000, guid: 0872c7765af18b148b1450159b56e5ad, type: 3}
   handTorch: {fileID: 5130550753272089025, guid: 4a229901234e0c249b1da5ec3823d109,
     type: 3}
   torchStartPos: {x: 0, y: 0}
