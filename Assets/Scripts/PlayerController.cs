@@ -9,10 +9,12 @@ public class PlayerController : MonoBehaviour
     [Header("Movement")]
     public float moveSpeed;
     public float jumpVel;
-    //bool grounded;
+    public float terminalVel;
     public Vector2 basePos;
     public Vector2 baseSize;
     public LayerMask groundLayer;
+    bool grounded = true;
+    bool lastGrounded = true;
 
     [Header("Action")]
     public Transform handPos;
@@ -22,20 +24,26 @@ public class PlayerController : MonoBehaviour
 
     Checkpoint latestCheckpoint;
 
+    Animator anim;
+
+    [Header("Audio")]
+    public AudioSource source;
+    public AudioClip jumpClip;
+    public AudioClip fallClip;
+    public AudioClip deathClip;
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
-    }
-
-    void Start()
-    {
-        
+        anim = GetComponent<Animator>();
     }
 
     void Update()
     {
         float xInput = Input.GetAxis("Horizontal");
         Move(xInput);
+
+        CheckIfGrounded();
 
         if (Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow))
         {
@@ -51,6 +59,14 @@ public class PlayerController : MonoBehaviour
         {
             Respawn();
         }
+
+        if (rb.velocity.y < terminalVel)
+        {
+            rb.velocity = new Vector2(rb.velocity.x, terminalVel);
+        }
+
+        anim.SetFloat("xSpeed", xInput);
+        anim.SetBool("Grounded", grounded);
     }
 
     void Move(float x)
@@ -58,14 +74,29 @@ public class PlayerController : MonoBehaviour
         rb.velocity = new Vector2(x * moveSpeed, rb.velocity.y);
     }
 
+    void CheckIfGrounded()
+    {
+        grounded = Physics2D.OverlapBox(rb.position + basePos, baseSize, 0, groundLayer);
+
+        //check if just grounded
+        if (lastGrounded != grounded && grounded && rb.velocity.y < 0)
+        {
+            PlayAudio(fallClip);
+        }
+
+        lastGrounded = grounded;
+    }
+
     void Jump()
     {
-        bool grounded = Physics2D.OverlapBox(rb.position + basePos, baseSize, 0, groundLayer);
-
         if (!grounded)
             return;
 
+        anim.SetTrigger("Jump");
+
         rb.velocity += new Vector2(0, jumpVel);
+
+        PlayAudio(jumpClip);
     }
 
     void Interact()
@@ -85,7 +116,9 @@ public class PlayerController : MonoBehaviour
 
     public void Die()
     {
-        Debug.Log("Player died. Press 'R' to respawn");
+        //Debug.Log("Player died. Press 'R' to respawn");
+
+        Respawn();
     }
 
     public void Respawn()
@@ -99,11 +132,34 @@ public class PlayerController : MonoBehaviour
         transform.position = latestCheckpoint.spawn.position;
 
         GameManager.instance.ResetScene();
+
+        AudioManager.PlayClipAtPoint(deathClip, transform.position);
     }
 
-    public void SetCheckpoint(Checkpoint checkpoint)
+    public bool SetCheckpoint(Checkpoint checkpoint)
     {
+        if (latestCheckpoint == checkpoint)
+        {
+            //Debug.Log("Same checkpoint");
+            return true;
+        }
+
+        if (latestCheckpoint)
+        {
+            latestCheckpoint.RemoveCheckpoint();
+        }
+
         latestCheckpoint = checkpoint;
+
+        //Debug.Log("new checkpoint");
+
+        return false;
+    }
+
+    void PlayAudio(AudioClip clip)
+    {
+        source.clip = clip;
+        source.Play();
     }
 
     private void OnDrawGizmosSelected()

@@ -20,6 +20,9 @@ public class HandTorch : MonoBehaviour
     LineRenderer lineRenderer;
     List<Vector3> points = new List<Vector3>();
 
+    [Header("Audio")]
+    public AudioClip clip;
+
     void Start()
     {
         if (!lineRendererObj)
@@ -85,6 +88,8 @@ public class HandTorch : MonoBehaviour
         Torch objT = obj.GetComponent<Torch>();
         objT.torchStartPos = torchStartPos;
         objT.isThrown = true;
+
+        AudioManager.PlayClipAtPoint(clip, transform.position);
 
         Destroy(gameObject);
     }

@@ -6,18 +6,19 @@ public class Gate : MonoBehaviour
 {
     public bool staysOpen = true;
     public float timeBeforeClosing;
+    public float animTime;
 
-    SpriteRenderer spriteRenderer;
-    Sprite curSprite;
-    Collider2D col;
+    Rigidbody2D rb;
 
     bool isOpened = false;
 
+    [Header("Audio")]
+    public AudioSource source;
+    public AudioClip clip;
+
     private void Awake()
     {
-        spriteRenderer = GetComponentInChildren<SpriteRenderer>();
-        curSprite = spriteRenderer.sprite;
-        col = GetComponent<Collider2D>();
+        rb = GetComponent<Rigidbody2D>();
     }
 
     public void Open()
@@ -25,20 +26,71 @@ public class Gate : MonoBehaviour
         if (isOpened)
             return;
 
-        spriteRenderer.sprite = null;
-        col.enabled = false;
-
         isOpened = true;
 
-        StartCoroutine(Close());
+        //currently playing button sfx
+        PlayAudio();
+
+        StartCoroutine(OpenAnimation(animTime));
     }
 
-    IEnumerator Close()
+    void PlayAudio()
+    {
+        source.clip = clip;
+        source.Play();
+    }
+
+    IEnumerator OpenAnimation(float time)
+    {
+        Vector2 startPos = rb.position;
+        Vector2 targetPos = rb.position + new Vector2(0, -3.1f);
+
+        float elapsed = 0f;
+
+        while (!Mathf.Approximately(rb.position.y, targetPos.y))
+        {
+            float y = Mathf.Lerp(startPos.y, targetPos.y, elapsed / time);
+            Vector2 pos = new Vector2(rb.position.x, y);
+            rb.MovePosition(pos);
+
+            elapsed += Time.deltaTime;
+
+            yield return null;
+        }
+
+        rb.MovePosition(targetPos);
+
+        //Debug.Log("Finished lerping");
+
+        if (!staysOpen)
+        {
+            StartCoroutine(CloseAnimation(time));
+        }
+
+    }
+
+
+    IEnumerator CloseAnimation(float time)
     {
         yield return new WaitForSeconds(timeBeforeClosing);
 
-        spriteRenderer.sprite = curSprite;
-        col.enabled = true;
+        Vector2 startPos = rb.position;
+        Vector2 targetPos = rb.position + new Vector2(0, 3.1f);
+
+        float elapsed = 0f;
+
+        while (!Mathf.Approximately(rb.position.y, targetPos.y))
+        {
+            float y = Mathf.Lerp(startPos.y, targetPos.y, elapsed / time);
+            Vector2 pos = new Vector2(rb.position.x, y);
+            rb.MovePosition(pos);
+
+            elapsed += Time.deltaTime;
+
+            yield return null;
+        }
+
+        rb.MovePosition(targetPos);
 
         isOpened = false;
     }

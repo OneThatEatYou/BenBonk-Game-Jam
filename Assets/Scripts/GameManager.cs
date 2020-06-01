@@ -26,7 +26,9 @@ public class GameManager : MonoBehaviour
                 Instantiate(wallTorchPrefab, torches[i].torchStartPos, Quaternion.identity);
                 Destroy(torches[i].gameObject);
 
-                Debug.Log(torches[i].torchStartPos);
+                //torches[i].isThrown = false;
+
+                //Debug.Log(torches[i].torchStartPos);
             }
         }
 

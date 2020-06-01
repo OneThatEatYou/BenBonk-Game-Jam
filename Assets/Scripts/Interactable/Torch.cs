@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class Torch : Interactable
 {
+    [Header("Torch Settings")]
     public GameObject handTorch;
 
     [HideInInspector]
@@ -29,12 +30,15 @@ public class Torch : Interactable
             return;
         }
 
-        isThrown = false;
-
         HandTorch obj = Instantiate(handTorch, PlayerManager.hand).GetComponent<HandTorch>();
         obj.torchStartPos = torchStartPos;
 
-        Debug.Log(torchStartPos);
+        //Debug.Log(torchStartPos);
+
+        if (clip)
+        {
+            AudioManager.PlayClipAtPoint(clip, transform.position);
+        }
 
         Destroy(gameObject);
     }

@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using TMPro;
 
 public class DialogueManager : MonoBehaviour
@@ -28,16 +29,27 @@ public class DialogueManager : MonoBehaviour
 
     Queue<string> sentences;
 
+    public float timeBetweenLetter;
+    public float timeBeforeEnding;
+
+    public AudioSource source;
+    public AudioClip clip;
+
+    [HideInInspector]
+    public UnityEvent onDialogueEnd;
+
     void Start()
     {
         sentences = new Queue<string>();
     }
 
-    public void StartDialogue(Dialogue dialogue)
+    public void StartDialogue(Dialogue dialogue, UnityEvent onEnd)
     {
         //Debug.Log("Starting conversation with " + dialogue.name);
 
         sentences.Clear();
+
+        onDialogueEnd = onEnd;
 
         //adds dialogue to queue
         foreach (string sentence in dialogue.sentences)
@@ -69,12 +81,26 @@ public class DialogueManager : MonoBehaviour
         foreach (char letter in sentence.ToCharArray())
         {
             dialogueText.text += letter;
-            yield return null;
+            PlayAudio();
+            yield return new WaitForSeconds(timeBetweenLetter);
         }
+
+        yield return new WaitForSeconds(timeBeforeEnding);
+        DisplayNextSentence();
     }
 
     void EndDialogue()
     {
-        Debug.Log("End of sentences");
+        //Debug.Log("End of sentences");
+
+        dialogueText.text = "";
+
+        onDialogueEnd.Invoke();
+    }
+
+    void PlayAudio()
+    {
+        source.clip = clip;
+        source.Play();
     }
 }
