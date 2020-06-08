@@ -13,6 +13,11 @@ public class Torch : Interactable
     [HideInInspector]
     public bool isThrown = false;
 
+    public AudioClip pickupClip;
+    public AudioClip collisionClip;
+
+    bool hadCollidedRecently;
+
     private void Start()
     {
         if (!isThrown)
@@ -35,11 +40,33 @@ public class Torch : Interactable
 
         //Debug.Log(torchStartPos);
 
-        if (clip)
+        if (pickupClip)
         {
-            AudioManager.PlayClipAtPoint(clip, transform.position);
+            AudioManager.instance.PlayClipAtPoint(pickupClip, transform.position);
         }
 
         Destroy(gameObject);
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collisionClip && !hadCollidedRecently)
+        {
+            AudioSource source = AudioManager.instance.PlayClipAtPoint(collisionClip, transform.position);
+            source.spatialBlend = 0.9f;
+            //source.rolloffMode = AudioRolloffMode.Linear;
+            source.minDistance = 2f;
+            source.maxDistance = 10f;
+            source.volume = 0.8f;
+            source.pitch = 0.6f;
+
+            hadCollidedRecently = true;
+            Invoke("ResetCollided", 0.3f);
+        }
+    }
+
+    void ResetCollided()
+    {
+        hadCollidedRecently = false;
     }
 }

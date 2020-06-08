@@ -1,17 +1,52 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
+using UnityEngine.Audio;
+using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
-    public static GameManager instance;
+    public Image transitionImg;
+    float t;
+    public float fadeinTime = 1f;
+    public AudioMixer mainMixer;
+    float v;
 
     public GameObject wallTorchPrefab;
+
+    #region Singleton
+
+    public static GameManager instance;
 
     private void Awake()
     {
         instance = this;
+    }
+
+    #endregion
+
+    private void Start()
+    {
+        StartCoroutine(PlayTransition());
+    }
+
+    IEnumerator PlayTransition()
+    {
+        Color col = transitionImg.color;
+        t = 0f;
+
+        while (transitionImg.color.a != 0)
+        {
+            col.a = Mathf.Lerp(1, 0, t / fadeinTime);
+            transitionImg.color = col;
+
+            v = Mathf.SmoothStep(-10, 0, t / fadeinTime);
+            mainMixer.SetFloat("MasterVolume", v);
+
+            t += Time.deltaTime;
+
+            yield return null;
+        }
     }
 
     public void ResetScene()

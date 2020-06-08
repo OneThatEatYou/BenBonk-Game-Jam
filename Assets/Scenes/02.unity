@@ -5526,6 +5526,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1922180220769666781, guid: 2f34d550bdc64ce48976564aea686ab0,
+        type: 3}
+      propertyPath: m_SortingLayer
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 5272328981655945581, guid: 2f34d550bdc64ce48976564aea686ab0,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -10935,6 +10940,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: SceneChanger
+      objectReference: {fileID: 0}
+    - target: {fileID: 7487196209838236658, guid: bb9d5e23e0e002d479a5af30c1564464,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: bb9d5e23e0e002d479a5af30c1564464, type: 3}

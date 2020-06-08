@@ -16,6 +16,12 @@ public class PlayerController : MonoBehaviour
     bool grounded = true;
     bool lastGrounded = true;
 
+    [HideInInspector]
+    public bool canMove = true;
+
+    int curDir = 1;
+    SpriteRenderer sRenderer;
+
     [Header("Action")]
     public Transform handPos;
     public Vector2 interactablePos;
@@ -32,18 +38,28 @@ public class PlayerController : MonoBehaviour
     public AudioClip fallClip;
     public AudioClip deathClip;
 
+    [Space]
+    public GameObject settingCanvas;
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
+        sRenderer = GetComponentInChildren<SpriteRenderer>();
         anim = GetComponent<Animator>();
     }
 
     void Update()
     {
         float xInput = Input.GetAxis("Horizontal");
-        Move(xInput);
 
-        CheckIfGrounded();
+        if (!canMove)
+        {
+            rb.velocity = Vector2.zero;
+            anim.SetFloat("xSpeed", 0);
+            return;
+        }
+
+        Move(xInput);
 
         if (Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow))
         {
@@ -67,11 +83,38 @@ public class PlayerController : MonoBehaviour
 
         anim.SetFloat("xSpeed", xInput);
         anim.SetBool("Grounded", grounded);
+
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            ToggleSettings();
+        }
+    }
+
+    private void FixedUpdate()
+    {
+        CheckIfGrounded();
     }
 
     void Move(float x)
     {
         rb.velocity = new Vector2(x * moveSpeed, rb.velocity.y);
+
+        if (x < 0 && curDir == 1)
+        {
+            Flip();
+        }
+        else if (x > 0 && curDir == -1)
+        {
+            Flip();
+        }
+    }
+
+    void Flip()
+    {
+        sRenderer.flipX = !sRenderer.flipX;
+        curDir = -curDir;
+
+        CameraController.instance.FlipCamera(curDir);
     }
 
     void CheckIfGrounded()
@@ -79,9 +122,10 @@ public class PlayerController : MonoBehaviour
         grounded = Physics2D.OverlapBox(rb.position + basePos, baseSize, 0, groundLayer);
 
         //check if just grounded
-        if (lastGrounded != grounded && grounded && rb.velocity.y < 0)
+        if (lastGrounded != grounded && grounded && rb.velocity.y < 0.1f)
         {
             PlayAudio(fallClip);
+            //Debug.Log(rb.velocity.y);
         }
 
         lastGrounded = grounded;
@@ -133,7 +177,7 @@ public class PlayerController : MonoBehaviour
 
         GameManager.instance.ResetScene();
 
-        AudioManager.PlayClipAtPoint(deathClip, transform.position);
+        AudioManager.instance.PlayClipAtPoint(deathClip, transform.position);
     }
 
     public bool SetCheckpoint(Checkpoint checkpoint)
@@ -160,6 +204,13 @@ public class PlayerController : MonoBehaviour
     {
         source.clip = clip;
         source.Play();
+    }
+
+    void ToggleSettings()
+    {
+        settingCanvas.SetActive(!settingCanvas.activeInHierarchy);
+
+        Time.timeScale = 1 - Time.timeScale;
     }
 
     private void OnDrawGizmosSelected()

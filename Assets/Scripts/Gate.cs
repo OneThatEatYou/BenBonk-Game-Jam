@@ -12,33 +12,37 @@ public class Gate : MonoBehaviour
 
     bool isOpened = false;
 
-    [Header("Audio")]
-    public AudioSource source;
-    public AudioClip clip;
+    //[Header("Audio")]
+    //public AudioSource source;
+    //public AudioClip clip;
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
     }
 
-    public void Open()
+    public bool Open()
     {
         if (isOpened)
-            return;
+        {
+            return false;
+        }
 
         isOpened = true;
 
         //currently playing button sfx
-        PlayAudio();
+        //PlayAudio();
 
         StartCoroutine(OpenAnimation(animTime));
+
+        return true;
     }
 
-    void PlayAudio()
-    {
-        source.clip = clip;
-        source.Play();
-    }
+    //void PlayAudio()
+    //{
+    //    source.clip = clip;
+    //    source.Play();
+    //}
 
     IEnumerator OpenAnimation(float time)
     {

@@ -12,6 +12,10 @@ public class Checkpoint : MonoBehaviour
     public Sprite onSprite;
     public Sprite offSprite;
 
+    [Space]
+
+    public ParticleSystem particle;
+
     [Header("Audio")]
     public AudioSource source;
     public AudioClip clip;
@@ -43,7 +47,9 @@ public class Checkpoint : MonoBehaviour
 
         spriteRenderer.sprite = onSprite;
 
-         GameManager.instance.ResetScene();
+        GameManager.instance.ResetScene();
+
+        SpawnParticle();
 
         PlayAudio();
     }
@@ -54,6 +60,11 @@ public class Checkpoint : MonoBehaviour
         wallLightSource.SetActive(false);
 
         spriteRenderer.sprite = offSprite;
+    }
+
+    void SpawnParticle()
+    {
+        particle.Play();
     }
 
     void PlayAudio()

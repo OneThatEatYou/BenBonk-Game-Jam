@@ -35,6 +35,11 @@ public class HandTorch : MonoBehaviour
 
     void Update()
     {
+        if (Time.timeScale != 1)
+        {
+            return;
+        }
+
         if (Input.GetMouseButtonDown(0))
         {
             lineRendererObj.SetActive(true);
@@ -89,7 +94,7 @@ public class HandTorch : MonoBehaviour
         objT.torchStartPos = torchStartPos;
         objT.isThrown = true;
 
-        AudioManager.PlayClipAtPoint(clip, transform.position);
+        AudioManager.instance.PlayClipAtPoint(clip, transform.position);
 
         Destroy(gameObject);
     }
